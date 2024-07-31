@@ -1,41 +1,42 @@
-import collections
+import numpy as np
+import scipy.integrate as spi
 
 
-def is_palindrome(s):
-    string_lower_no_spaces = ''.join(char.lower() for char in s if char.isalnum())
-
-    deq = collections.deque(string_lower_no_spaces)
-
-    while len(deq) > 1:
-        if deq.popleft() != deq.pop():
-            return False
-    return True
+# Define the function f(x)
+def f(x):
+    return x ** 2
 
 
-test_strings = [
-    "Able was I ere I saw Elba",
-    "Madam, in Eden, I'm Adam",
-    "Step on no pets",
-    "Eva, can I see bees in a cave?",
-    "Mr. Owl ate my metal worm",
-    "Do geese see God?",
-    "A Santa at NASA",
-    "Never odd or even",
-    "Doc, note I dissent. A fast never prevents a fatness. I diet on cod.",
-    "Murder for a jar of red rum",
-    "Go hang a salami, I'm a lasagna hog",
-    "Yo, Banana Boy!",
-    "A Toyota's a Toyota",
-    "A Santa lived as a devil at NASA"
-    "A man a plan a canal Panama",
-    "racecar",
-    "hello",
-    "Was it a car or a cat I saw",
-    "No lemon, no melon"
-]
+# Integration limits
+a = 0  # Lower limit
+b = 2  # Upper limit
 
-for string in test_strings:
-    if is_palindrome(string):
-        print(f'"{string}" is a palindrome.')
-    else:
-        print(f'"{string}" is not a palindrome.')
+
+# Implementation of the Monte Carlo method
+def monte_carlo_integration(func, low_lim, up_lim, num_samples=10000):
+    # Generate random points
+    x_random = np.random.uniform(low_lim, up_lim, num_samples)
+    y_random = np.random.uniform(0, max(func(np.linspace(low_lim, up_lim, 1000))), num_samples)
+
+    # Count how many points fall under the curve
+    under_curve = y_random < func(x_random)
+
+    # Fraction of points under the curve
+    fraction = np.sum(under_curve) / num_samples
+
+    # Area of the rectangle
+    rect_area = (up_lim - low_lim) * max(func(np.linspace(low_lim, up_lim, 1000)))
+
+    # Area under the curve (integral approximation)
+    area = fraction * rect_area
+
+    return area
+
+
+# Calculate the integral using the Monte Carlo method
+monte_carlo_result = monte_carlo_integration(f, a, b, num_samples=100000)
+print(f"Monte Carlo method: {monte_carlo_result}")
+
+# Calculate the integral using the quad function from SciPy
+quad_result, quad_error = spi.quad(f, a, b)
+print(f"Quad function result: {quad_result}")
