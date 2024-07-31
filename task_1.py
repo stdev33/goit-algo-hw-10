@@ -1,41 +1,25 @@
-import queue
-import random
-import time
+from pulp import LpMaximize, LpProblem, LpVariable, lpSum
 
-request_queue = queue.Queue()
-request_id_counter = 1
+# Створення моделі
+model = LpProblem(name="maximize-production", sense=LpMaximize)
 
+# Змінні
+x1 = LpVariable(name="lemonade", lowBound=0, cat="Continuous")  # Кількість виробленого лимонаду
+x2 = LpVariable(name="fruit_juice", lowBound=0, cat="Continuous")  # Кількість виробленого фруктового соку
 
-def generate_request():
-    global request_id_counter
+# Цільова функція
+model += lpSum([x1, x2]), "Total Production"
 
-    request = f"Request {request_id_counter}"
-    request_id_counter += 1
+# Обмеження на ресурси
+model += (2*x1 + 1*x2 <= 100), "Water constraint"
+model += (1*x1 <= 50), "Sugar constraint"
+model += (1*x1 <= 30), "Lemon juice constraint"
+model += (2*x2 <= 40), "Fruit puree constraint"
 
-    request_queue.put(request)
-    print(f"Generated and added to queue: {request}")
+# Розв'язання задачі
+model.solve()
 
-
-def process_request():
-    if not request_queue.empty():
-        request = request_queue.get()
-
-        print(f"Processing {request}")
-        time.sleep(1)
-    else:
-        print("No requests available to process.")
-
-
-def main():
-    try:
-        while True:
-            generate_request()
-            time.sleep(random.uniform(0.5, 2))
-
-            process_request()
-    except KeyboardInterrupt:
-        print("\nExiting the program...")
-
-
-if __name__ == "__main__":
-    main()
+# Виведення результатів
+print(f"Максимальна кількість лимонаду: {x1.value()}")
+print(f"Максимальна кількість фруктового соку: {x2.value()}")
+print(f"Загальна кількість продуктів: {x1.value() + x2.value()}")
