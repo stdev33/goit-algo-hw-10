@@ -1,3 +1,3 @@
-# goit-algo-hw-02
+# goit-algo-hw-10
 
-Homework 2. Basic Algorithms and Data Structures at GoIT Neoversity
+Homework 10. Basic Algorithms and Data Structures at GoIT Neoversity
